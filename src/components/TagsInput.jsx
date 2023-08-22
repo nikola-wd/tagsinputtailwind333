@@ -68,6 +68,8 @@ const TagsInput = ({
 
     if (tags.length < maxTags && sanitizedValue.length <= tagMaxChars) {
       setInputValue(sanitizedValue);
+    } else {
+      setInputValue('');
     }
   };
 
