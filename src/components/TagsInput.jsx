@@ -98,6 +98,10 @@ const TagsInput = ({
   const handleInputChange = (e) => {
     let sanitizedValue = e.target.value;
 
+    if (sanitizedValue.startsWith(',') || sanitizedValue.startsWith(' ')) {
+      sanitizedValue = '';
+    }
+
     console.log('sanitized value: ', sanitizedValue);
 
     // Replace or remove any undesired characters
