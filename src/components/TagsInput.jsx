@@ -249,44 +249,47 @@ const TagsInput = ({
   };
 
   return (
-    <div>
-      <h4>Input Value: {inputValue}</h4>
-      <div
-        className={classNames(
-          tagsWrapCls,
-          error ? 'border-red' : 'border-gray-300',
-          className
-        )}
-      >
-        <AnimatePresence>
-          {tags.map((tag, index) => (
-            <motion.button
-              type="button"
-              key={tag}
-              className={tagCls}
-              onClick={() => handleTagRemove(tag)}
-              onKeyDown={(e) => e.key === 'Backspace' && handleTagRemove(tag)}
-              {...tagAnimationProps}
-            >
-              {tag}
-            </motion.button>
-          ))}
-        </AnimatePresence>
+    <div
+      className={classNames(
+        tagsWrapCls,
+        error ? 'border-red' : 'border-gray-300',
+        className
+      )}
+    >
+      <AnimatePresence>
+        {tags.map((tag, index) => (
+          <motion.button
+            type="button"
+            key={tag}
+            className={tagCls}
+            onClick={() => handleTagRemove(tag)}
+            aria-label={`Remove tag ${tag}`}
+            onKeyDown={(e) => e.key === 'Backspace' && handleTagRemove(tag)}
+            {...tagAnimationProps}
+          >
+            {tag}
+          </motion.button>
+        ))}
+      </AnimatePresence>
 
-        <input
-          ref={inputRef}
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleTagsLogic}
-          onInput={handleTagsLogic}
-          onKeyUp={handleKeyUpBackspaceAndroid}
-          onPaste={handlePaste}
-          className={tagsInputCls}
-          placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
-          disabled={disabled}
-        />
-        {disabled && <DisabledDivOverlay />}
-      </div>
+      <label id="tagsLabel" className="sr-only">
+        Tags
+      </label>
+      <input
+        ref={inputRef}
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleTagsLogic}
+        onInput={handleTagsLogic}
+        onKeyUp={handleKeyUpBackspaceAndroid}
+        onPaste={handlePaste}
+        className={tagsInputCls}
+        placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
+        disabled={disabled}
+        aria-disabled={disabled}
+        aria-labelledby="tagsLabel"
+      />
+      {disabled && <DisabledDivOverlay />}
     </div>
   );
 };
