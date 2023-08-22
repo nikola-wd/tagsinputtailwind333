@@ -78,6 +78,8 @@ const TagsInput = ({
 
   const handleKeyUpBackspaceAndroid = (e) => {
     console.log('onKeyUp: ', e);
+    console.log('onKeyUp Target: ', e.target);
+    console.log('onKeyUp current ref: ', inputRef.current);
     const onKeyUp = document.createElement('pre');
     onKeyUp.innerHTML = e?.key || 'NO KEY';
     onKeyUp.style.backgroundColor = 'orange';
