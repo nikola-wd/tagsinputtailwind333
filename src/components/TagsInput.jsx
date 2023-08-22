@@ -136,15 +136,16 @@ const TagsInput = ({
     };
   }, [setInputValue]);
 
-  const addTagFromInput = useCallback(() => {
+  const tryAddTagFromInput = useCallback(() => {
     let trimmedInputValue = inputValue.trim();
+    // TODO: Test if this is needed, because bug on android chrome is not fixed by this
     if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
       trimmedInputValue = trimmedInputValue.slice(0, -1);
       setInputValue(trimmedInputValue);
     }
 
     console.log(
-      'FROM INSIDE addTagFromInput trimmedInputValue: ',
+      'FROM INSIDE tryAddTagFromInput trimmedInputValue: ',
       trimmedInputValue
     );
 
@@ -154,7 +155,6 @@ const TagsInput = ({
         const event = new Event('resetInput');
         window.dispatchEvent(event);
         setTags(newTags);
-
         checkTagLimits(newTags);
       }
     }
@@ -169,10 +169,9 @@ const TagsInput = ({
     switch (key) {
       case 'Enter':
         e.preventDefault();
+        tryAddTagFromInput;
         if (!androidChrome) {
           onSubmit?.();
-        } else {
-          addTagFromInput();
         }
         return;
       case 'Backspace':
@@ -189,7 +188,7 @@ const TagsInput = ({
           if (!inputValue.match(/^\s*$/)) {
             if (isTagValid(inputValue.trim())) {
               e.preventDefault();
-              addTagFromInput();
+              tryAddTagFromInput();
               return;
             }
           }
@@ -198,7 +197,7 @@ const TagsInput = ({
       case 'Tab':
         if (!androidChrome && inputValue) {
           e.preventDefault();
-          addTagFromInput();
+          tryAddTagFromInput();
           return;
         }
         break;
