@@ -76,6 +76,7 @@ const TagsInput = ({
     // handleInputKeyDownAndroidChrome(e)
   };
 
+  // hacky fix for chrome android not clearing input value after tag is added
   const handleKeyUpBackspaceAndroid = useCallback(
     (e) => {
       console.log('onKeyUp: ', e);
@@ -90,13 +91,16 @@ const TagsInput = ({
         tags.length
       ) {
         console.warn('___SHOLD CLEAR LAST KEY NOW___');
+        const newTags = tags.slice(0, -1);
+        setTags(newTags);
+        checkTagLimits(newTags);
       }
       const onKeyUp = document.createElement('pre');
       onKeyUp.innerHTML = e?.key || 'NO KEY';
       onKeyUp.style.backgroundColor = 'orange';
       document.body.appendChild(onKeyUp);
     },
-    [tags.length, inputRef.current]
+    [tags.length, inputRef.current, setTags, checkTagLimits]
   );
 
   // Fix for Android Chrome not clearing input value after tag is added
