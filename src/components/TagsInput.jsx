@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
+const frontLog = (content) => {
+  const fl = document.getElementById('log');
+  fl.innerHTML = JSON.stringify(content);
+};
+
 const tagsWrapCls =
   'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
 const tagCls =
@@ -23,6 +28,7 @@ const isAndroidChrome = (e) => {
 
 function checkKey(key, eventKey, negate = false) {
   console.log('CheckKey: ', key, eventKey, negate);
+  frontLog(`CheckKey: ', ${key}, ${eventKey}, ${negate}`);
   return negate ? eventKey !== key : eventKey === key;
 }
 
@@ -71,6 +77,7 @@ const TagsInput = ({
 
     if (tags.length < maxTags && sanitizedValue.length <= tagMaxChars) {
       console.log('handleInputChange', e);
+      frontLog(`handleInputChange: ${JSON.stringify(e)}`);
       setInputValue(sanitizedValue);
     }
 
@@ -84,6 +91,9 @@ const TagsInput = ({
         setInputValue('');
       }, 0);
       console.log(
+        'Input value has been reset - Listened for the custom event!!!!!'
+      );
+      frontLog(
         'Input value has been reset - Listened for the custom event!!!!!'
       );
     };
@@ -107,11 +117,13 @@ const TagsInput = ({
       const newTags = [...tags, trimmedInputValue];
       if (newTags.length <= maxTags) {
         console.log('BEFORE CLEARING INPUT VALUE');
+        frontLog('BEFORE CLEARING INPUT VALUE');
         // setInputValue('')
         // Emit the custom event instead of directly setting state
         const event = new Event('resetInput');
         window.dispatchEvent(event);
         console.log('AFTER CLEARING INPUT VALUE');
+        frontLog('AFTER CLEARING INPUT VALUE');
         setTags(newTags);
 
         checkTagLimits(newTags);
@@ -124,6 +136,7 @@ const TagsInput = ({
 
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
+    frontLog(`IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!! ${e}`);
 
     if (androidChrome) {
       const testAndroidChrome = document.createElement('h2');
@@ -211,6 +224,7 @@ const TagsInput = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       console.log('On submit from TagsInput');
+      frontLog('On submit from TagsInput');
       onSubmit?.();
       return;
     }
@@ -314,7 +328,7 @@ const TagsInput = ({
           ref={inputRef}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={handleInputKeyDown}
+          // onKeyDown={handleInputKeyDown}
           onInput={handleInputKeyDownAndroidChrome}
           onPaste={handlePaste}
           className={tagsInputCls}
