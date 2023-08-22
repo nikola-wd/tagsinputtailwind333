@@ -133,14 +133,6 @@ const TagsInput = ({
     frontLog('It is android phone');
     frontLog({ e });
 
-    if (androidChrome) {
-      const testAndroidChrome = document.createElement('h2');
-      testAndroidChrome.innerHTML = 'Android Chrome';
-      testAndroidChrome.style.color = 'red';
-      testAndroidChrome.style.backgroundColor = 'yellow';
-      document.body.prepend(testAndroidChrome);
-    }
-
     const androidChromeData = e.nativeEvent.data;
 
     const getMappedKey = (inputType) => {
