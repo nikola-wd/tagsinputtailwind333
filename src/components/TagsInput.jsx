@@ -47,6 +47,8 @@ const TagsInput = ({
   const maxTagsReached = tags.length >= maxTags;
 
   const isTagValid = (tag) => {
+    console.log('Tag to be checked: ', tag);
+
     return (
       tag.length >= tagMinChars &&
       tag.length <= tagMaxChars &&
@@ -112,11 +114,12 @@ const TagsInput = ({
   const addTagFromInput = () => {
     const trimmedInputValue = inputValue.trim();
 
-    if (
-      trimmedInputValue &&
-      !tags.includes(trimmedInputValue) &&
-      isTagValid(trimmedInputValue)
-    ) {
+    console.log(
+      'FROM INSIDE addTagFromInput trimmedInputValue: ',
+      trimmedInputValue
+    );
+
+    if (trimmedInputValue && isTagValid(trimmedInputValue)) {
       const newTags = [...tags, trimmedInputValue];
       if (newTags.length <= maxTags) {
         const event = new Event('resetInput');
