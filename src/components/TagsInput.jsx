@@ -2,13 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const tagsWrapCls =
-  'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
-const tagCls =
-  'relative bg-gray-100 text-blue text-lg font-bold hover:text-red px-[10px] py-[4px] rounded-sm inline-flex items-center justify-between gap-1 outline-none focus:ring-blue focus:ring-2 focus:ring-offset-2 transition-colors m-2';
-const tagsInputCls =
-  'outline-none bg-transparent flex-grow placeholder:text-3xl text-3xl placeholder:text-gray-500 text-black placeholder:font-bold font-bold pl-2';
-
 const regexAlphaNumericOnly = /^[a-zA-Z0-9 ,]+$/;
 
 const isAndroidChrome = (e) => {
@@ -62,6 +55,12 @@ const TagsInput = ({
   const [error, setError] = useState(false);
 
   const inputRef = useRef();
+  const tagsWrapCls =
+    'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
+  const tagCls =
+    'relative bg-gray-100 text-blue text-lg font-bold hover:text-red px-[10px] py-[4px] rounded-sm inline-flex items-center justify-between gap-1 outline-none focus:ring-blue focus:ring-2 focus:ring-offset-2 transition-colors m-2';
+  const tagsInputCls =
+    'outline-none bg-transparent flex-grow placeholder:text-3xl text-3xl placeholder:text-gray-500 text-black placeholder:font-bold font-bold pl-2';
 
   const maxTagsReached = tags.length >= maxTags;
 
