@@ -209,6 +209,8 @@ const TagsInput = ({
     const androidChrome = isAndroidChrome(e);
     if (androidChrome) return;
 
+    console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
+
     if (e.key === 'Enter') {
       e.preventDefault();
       console.log('On submit from TagsInput');
