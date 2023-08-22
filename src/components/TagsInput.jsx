@@ -106,6 +106,8 @@ const TagsInput = ({
   // hacky fix for chrome android not clearing input value after tag is added
   const handleKeyUpBackspaceAndroid = useCallback(
     (e) => {
+      console.log('On Key Up: ', e);
+
       if (
         isAndroidChrome(e) &&
         e?.key === 'Backspace' &&
