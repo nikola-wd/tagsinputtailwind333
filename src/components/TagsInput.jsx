@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -76,15 +76,28 @@ const TagsInput = ({
     // handleInputKeyDownAndroidChrome(e)
   };
 
-  const handleKeyUpBackspaceAndroid = (e) => {
-    console.log('onKeyUp: ', e);
-    console.log('onKeyUp Target: ', e.target);
-    console.log('onKeyUp current ref: ', inputRef.current);
-    const onKeyUp = document.createElement('pre');
-    onKeyUp.innerHTML = e?.key || 'NO KEY';
-    onKeyUp.style.backgroundColor = 'orange';
-    document.body.appendChild(onKeyUp);
-  };
+  const handleKeyUpBackspaceAndroid = useCallback(
+    (e) => {
+      console.log('onKeyUp: ', e);
+      console.log('onKeyUp Target: ', e.target);
+      console.log('onKeyUp current ref: ', inputRef.current);
+
+      if (
+        isAndroidChrome(e) &&
+        e?.key === 'Backspace' &&
+        e.target === inputRef.current &&
+        !inputRef.current.value &&
+        tags.length
+      ) {
+        console.warn('___SHOLD CLEAR LAST KEY NOW___');
+      }
+      const onKeyUp = document.createElement('pre');
+      onKeyUp.innerHTML = e?.key || 'NO KEY';
+      onKeyUp.style.backgroundColor = 'orange';
+      document.body.appendChild(onKeyUp);
+    },
+    [tags.length, inputRef.current]
+  );
 
   // Fix for Android Chrome not clearing input value after tag is added
   useEffect(() => {
