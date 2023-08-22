@@ -115,9 +115,7 @@ const TagsInput = ({
         !inputRef.current.value &&
         tags.length
       ) {
-        const newTags = tags.slice(0, -1);
-        setTags(newTags);
-        checkTagLimits(newTags);
+        removeLastTag();
       }
     },
     [tags.length, inputRef.current, setTags, checkTagLimits]
@@ -164,22 +162,23 @@ const TagsInput = ({
 
   const handleTagsLogic = (e) => {
     const androidChrome = isAndroidChrome(e);
-    const key = androidChrome ? e.nativeEvent.data : e.key;
+    const key = androidChrome
+      ? e?.nativeEvent?.data || e?.nativeEvent?.key
+      : e.key;
 
     switch (key) {
       case 'Enter':
+        e.preventDefault();
         if (!androidChrome) {
-          e.preventDefault();
           onSubmit?.();
-          return;
+        } else {
+          addTagFromInput();
         }
-        break;
+        return;
       case 'Backspace':
         if (isBackspaceKey(e, androidChrome)) {
           if (!inputValue) {
-            const newTags = tags.slice(0, -1);
-            setTags(newTags);
-            checkTagLimits(newTags);
+            removeLastTag();
             return;
           }
         }
@@ -246,6 +245,12 @@ const TagsInput = ({
     setTags(newTags);
     checkTagLimits(newTags);
     inputRef.current.focus();
+  };
+
+  const removeLastTag = () => {
+    const newTags = tags.slice(0, -1);
+    setTags(newTags);
+    checkTagLimits(newTags);
   };
 
   return (
