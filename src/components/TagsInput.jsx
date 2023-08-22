@@ -171,7 +171,19 @@ const TagsInput = ({
 
     if (shouldAddTagFromInput) {
       e.preventDefault();
-      addTagFromInput();
+
+      if (tags.length < maxTags) {
+        const endsWithCommaOrSpace =
+          inputValue.endsWith(',') || inputValue.endsWith(' ');
+        const inputValueWithoutLastChar = inputValue.slice(0, -1);
+
+        if (endsWithCommaOrSpace && tags.includes(inputValueWithoutLastChar)) {
+          setInputValue('');
+        } else {
+          addTagFromInput();
+        }
+      }
+
       return;
     }
 
