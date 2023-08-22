@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const frontLog = (content) => {
   const fl = document.getElementById('log');
-  fl.innerHTML = JSON.stringify(content, null, 2);
+  fl.innerHTML =
+    innerHTML + '\n ________ \n' + JSON.stringify(content, null, 2);
 };
 
 const tagsWrapCls =
