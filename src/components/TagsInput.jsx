@@ -66,13 +66,8 @@ const TagsInput = ({
     // This regex will remove anything that's not alphanumeric, space, or comma.
     sanitizedValue = sanitizedValue.replace(/[^a-zA-Z0-9 ,]/g, '');
 
-    if (tags.length < maxTags) {
-      if (sanitizedValue.length <= tagMaxChars) {
-        setInputValue(sanitizedValue);
-      }
-    } else {
-      setInputValue('');
-      inputRef.current.value = '';
+    if (tags.length < maxTags && sanitizedValue.length <= tagMaxChars) {
+      setInputValue(sanitizedValue);
     }
   };
 
