@@ -70,8 +70,6 @@ const TagsInput = ({
   const maxTagsReached = tags.length >= maxTags;
 
   const isTagValid = (tag) => {
-    console.log('Tag to be checked: ', tag);
-
     return (
       tag.length >= tagMinChars &&
       tag.length <= tagMaxChars &&
@@ -125,18 +123,6 @@ const TagsInput = ({
   const tryAddTagFromInput = useCallback(() => {
     let trimmedInputValue = inputValue.trim();
 
-    console.log('Inside try add', trimmedInputValue);
-    // TODO: Test if this is needed, because bug on android chrome is not fixed by this
-    if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
-      trimmedInputValue = trimmedInputValue.slice(0, -1);
-      setInputValue(trimmedInputValue);
-    }
-
-    console.log(
-      'FROM INSIDE tryAddTagFromInput trimmedInputValue: ',
-      trimmedInputValue
-    );
-
     if (trimmedInputValue && isTagValid(trimmedInputValue)) {
       const newTags = [...tags, trimmedInputValue];
       if (newTags.length <= maxTags) {
@@ -151,8 +137,6 @@ const TagsInput = ({
   // hacky fix for chrome android not clearing input value after tag is added
   const handlePhoneNuances = useCallback(
     (e) => {
-      console.log('On Key Up: ', e);
-
       if (!isPhone) return;
 
       switch (e.key) {
@@ -188,12 +172,9 @@ const TagsInput = ({
     const androidChrome = isAndroidChrome(e);
     const key = androidChrome ? e?.nativeEvent?.data || e?.key : e.key;
 
-    console.log('====================KEY: ', key);
-
     switch (key) {
       case 'Enter':
         e.preventDefault();
-        console.log('Enter pressed');
         if (!androidChrome) {
           onSubmit?.();
         }
@@ -225,9 +206,7 @@ const TagsInput = ({
         break;
     }
 
-    // TODO: On mobile it might not be clear that space, comma etc add tags, either tooltip or on enter, or additional button
     const currEl = e.target;
-    // Consolidate common checks outside the switch
     const shouldPreventDefaultConditions = [
       tags.length >= maxTags && isBackspaceKey(e, androidChrome),
       !regexAlphaNumericOnly.test(key),
