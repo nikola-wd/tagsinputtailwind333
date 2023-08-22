@@ -104,21 +104,24 @@ const TagsInput = ({
   };
 
   // hacky fix for chrome android not clearing input value after tag is added
-  const handleKeyUpBackspaceAndroid = useCallback(
+  const handleAndroidChrome = useCallback(
     (e) => {
       console.log('On Key Up: ', e);
 
-      if (
-        isAndroidChrome(e) &&
-        e?.key === 'Backspace' &&
-        e.target === inputRef.current &&
-        !inputRef.current.value &&
-        tags.length
-      ) {
-        removeLastTag();
+      if (!isAndroidChrome()) return;
+
+      switch (e.key) {
+        case 'Backspace':
+          tryRemoveLastTag();
+          break;
+        case 'Enter':
+          tryAddTagFromInput();
+          break;
+        default:
+          break;
       }
     },
-    [tags.length, inputRef.current, setTags, checkTagLimits]
+    [tryRemoveLastTag, tryAddTagFromInput]
   );
 
   // Fix for Android Chrome not clearing input value after tag is added
@@ -164,9 +167,7 @@ const TagsInput = ({
 
   const handleTagsLogic = (e) => {
     const androidChrome = isAndroidChrome(e);
-    const key = androidChrome
-      ? e?.nativeEvent?.data || e?.nativeEvent?.key
-      : e.key;
+    const key = androidChrome ? e?.nativeEvent?.data || e?.key : e.key;
 
     console.log('====================KEY: ', key);
 
@@ -174,18 +175,14 @@ const TagsInput = ({
       case 'Enter':
         e.preventDefault();
         console.log('Enter pressed');
-        // TODO: Fix enter not adding tags
-        tryAddTagFromInput;
         if (!androidChrome) {
           onSubmit?.();
         }
         return;
       case 'Backspace':
         if (isBackspaceKey(e, androidChrome)) {
-          if (!inputValue) {
-            removeLastTag();
-            return;
-          }
+          tryRemoveLastTag();
+          return;
         }
         break;
       case ',':
@@ -210,23 +207,19 @@ const TagsInput = ({
     }
 
     // TODO: On mobile it might not be clear that space, comma etc add tags, either tooltip or on enter, or additional button
-
+    const currEl = e.target;
     // Consolidate common checks outside the switch
     const shouldPreventDefaultConditions = [
       tags.length >= maxTags && isBackspaceKey(e, androidChrome),
       !regexAlphaNumericOnly.test(key),
-      checkKey(' ', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ' ',
-      checkKey(',', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ',',
+      checkKey(' ', key) && currEl.value[currEl.selectionStart - 1] === ' ',
+      checkKey(',', key) && currEl.value[currEl.selectionStart - 1] === ',',
       isCommaOrSpaceKey(key) && !isTagValid(inputValue.trim()),
     ];
     if (shouldPreventDefaultConditions.some((condition) => condition)) {
       !maxTagsReached && e.preventDefault();
     }
   };
-
-  // TODO: Add wai aria elements to all the interactable UI
 
   const handlePaste = (e) => {
     e.preventDefault();
@@ -250,7 +243,8 @@ const TagsInput = ({
     inputRef.current.focus();
   };
 
-  const removeLastTag = () => {
+  const tryRemoveLastTag = () => {
+    if (!!inputValue || !tags.length) return;
     const newTags = tags.slice(0, -1);
     setTags(newTags);
     checkTagLimits(newTags);
@@ -289,7 +283,7 @@ const TagsInput = ({
         onChange={handleInputChange}
         onKeyDown={handleTagsLogic}
         onInput={handleTagsLogic}
-        onKeyUp={handleKeyUpBackspaceAndroid}
+        onKeyUp={handleAndroidChrome}
         onPaste={handlePaste}
         className={tagsInputCls}
         placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
