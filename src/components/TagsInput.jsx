@@ -29,7 +29,7 @@ const isAndroidChrome = (e) => {
 
 function checkKey(key, eventKey, negate = false) {
   console.log('CheckKey: ', key, eventKey, negate);
-  frontLog({ checkkey: 'checkKey', key, eventKey, negate });
+  // frontLog({ checkkey: 'checkKey', key, eventKey, negate });
   return negate ? eventKey !== key : eventKey === key;
 }
 
@@ -131,8 +131,8 @@ const TagsInput = ({
 
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
-    frontLog('It is android phone');
-    frontLog({ e });
+    // frontLog('It is android phone');
+    // frontLog({ e });
 
     const androidChromeData = e.nativeEvent.data;
 
