@@ -74,7 +74,8 @@ const TagsInput = ({
       tag.length >= tagMinChars &&
       tag.length <= tagMaxChars &&
       tags.length < maxTags &&
-      !tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+      !tags.some((t) => t.toLowerCase() === tag.toLowerCase()) &&
+      !/^[, ]*$/.test(tag) // disallow tags that are just spaces or commas
     );
   };
 
@@ -174,6 +175,12 @@ const TagsInput = ({
     const androidChrome = isAndroidChrome(e);
     const key = androidChrome ? e?.nativeEvent?.data || e?.key : e.key;
 
+    // Disallow "," or " " when the input is empty
+    if ((key === ',' || key === ' ') && e.target.value.trim() === '') {
+      e.preventDefault();
+      return;
+    }
+
     switch (key) {
       case 'Enter':
         if (!isPhone) {
@@ -194,6 +201,11 @@ const TagsInput = ({
       case ',':
       case ' ':
         if (isCommaOrSpaceKey(key)) {
+          if (inputValue.trim() === '') {
+            e.preventDefault();
+            return;
+          }
+
           if (!inputValue.match(/^\s*$/)) {
             e.preventDefault();
             tryAddTagFromInput();

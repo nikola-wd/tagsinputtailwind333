@@ -2,14 +2,12 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const tagsWrapCls =
-  'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
-const tagCls =
-  'relative bg-gray-100 text-blue text-lg font-bold hover:text-red px-[10px] py-[4px] rounded-sm inline-flex items-center justify-between gap-1 outline-none focus:ring-blue focus:ring-2 focus:ring-offset-2 transition-colors m-2';
-const tagsInputCls =
-  'outline-none bg-transparent flex-grow placeholder:text-3xl text-3xl placeholder:text-gray-500 text-black placeholder:font-bold font-bold pl-2';
-
 const regexAlphaNumericOnly = /^[a-zA-Z0-9 ,]+$/;
+
+const isPhone =
+  /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
 
 const isAndroidChrome = (e) => {
   const lowerCaseUserAgent = window.navigator.userAgent.toLowerCase();
@@ -29,6 +27,17 @@ const getMappedKey = (inputType) => {
       deleteContentBackward: 'Backspace',
     }[inputType] || null
   );
+};
+
+const isBackspaceKey = (e, androidChrome) => {
+  const Backspace = !androidChrome
+    ? 'Backspace'
+    : getMappedKey(e.nativeEvent.inputType);
+  return checkKey(Backspace, androidChrome ? e.nativeEvent.data : e.key);
+};
+
+const isCommaOrSpaceKey = (key) => {
+  return checkKey(',', key) || checkKey(' ', key);
 };
 
 const DisabledDivOverlay = () => (
@@ -51,17 +60,22 @@ const TagsInput = ({
   const [error, setError] = useState(false);
 
   const inputRef = useRef();
+  const tagsWrapCls =
+    'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
+  const tagCls =
+    'relative bg-gray-100 text-blue text-lg font-bold hover:text-red px-[10px] py-[4px] rounded-sm inline-flex items-center justify-between gap-1 outline-none focus:ring-blue focus:ring-2 focus:ring-offset-2 transition-colors m-2';
+  const tagsInputCls =
+    'outline-none bg-transparent flex-grow placeholder:text-3xl text-3xl placeholder:text-gray-500 text-black placeholder:font-bold font-bold pl-2';
 
   const maxTagsReached = tags.length >= maxTags;
 
   const isTagValid = (tag) => {
-    console.log('Tag to be checked: ', tag);
-
     return (
       tag.length >= tagMinChars &&
       tag.length <= tagMaxChars &&
       tags.length < maxTags &&
-      !tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+      !tags.some((t) => t.toLowerCase() === tag.toLowerCase()) &&
+      !/^[, ]*$/.test(tag) // disallow tags that are just spaces or commas
     );
   };
 
@@ -72,6 +86,13 @@ const TagsInput = ({
     } else {
       setError(false);
     }
+  };
+
+  const handleTagRemove = (tag) => {
+    const newTags = tags.filter((t) => t !== tag);
+    setTags(newTags);
+    checkTagLimits(newTags);
+    inputRef.current.focus();
   };
 
   const handleInputChange = (e) => {
@@ -93,22 +114,46 @@ const TagsInput = ({
     transition: { duration: 0.1 },
   };
 
-  // hacky fix for chrome android not clearing input value after tag is added
-  const handleKeyUpBackspaceAndroid = useCallback(
-    (e) => {
-      if (
-        isAndroidChrome(e) &&
-        e?.key === 'Backspace' &&
-        e.target === inputRef.current &&
-        !inputRef.current.value &&
-        tags.length
-      ) {
-        const newTags = tags.slice(0, -1);
+  const tryRemoveLastTag = () => {
+    if (!!inputValue || !tags.length) return;
+    const newTags = tags.slice(0, -1);
+    setTags(newTags);
+    checkTagLimits(newTags);
+  };
+
+  const tryAddTagFromInput = useCallback(() => {
+    let trimmedInputValue = inputValue.trim();
+
+    if (trimmedInputValue && isTagValid(trimmedInputValue)) {
+      const newTags = [...tags, trimmedInputValue];
+      if (newTags.length <= maxTags) {
+        const event = new Event('resetInput');
+        window.dispatchEvent(event);
         setTags(newTags);
         checkTagLimits(newTags);
+        return true;
+      }
+    }
+    return false;
+  }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
+
+  // hacky fix for chrome android not clearing input value after tag is added
+  const handlePhoneNuances = useCallback(
+    (e) => {
+      if (!isPhone) return;
+
+      switch (e.key) {
+        case 'Backspace':
+          isAndroidChrome() && tryRemoveLastTag();
+          break;
+        case 'Enter':
+          tryAddTagFromInput();
+          break;
+        default:
+          break;
       }
     },
-    [tags.length, inputRef.current, setTags, checkTagLimits]
+    [tryRemoveLastTag, tryAddTagFromInput]
   );
 
   // Fix for Android Chrome not clearing input value after tag is added
@@ -126,99 +171,60 @@ const TagsInput = ({
     };
   }, [setInputValue]);
 
-  const addTagFromInput = useCallback(() => {
-    let trimmedInputValue = inputValue.trim();
-    if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
-      trimmedInputValue = trimmedInputValue.slice(0, -1);
-      setInputValue(trimmedInputValue);
-    }
-
-    console.log(
-      'FROM INSIDE addTagFromInput trimmedInputValue: ',
-      trimmedInputValue
-    );
-
-    if (trimmedInputValue && isTagValid(trimmedInputValue)) {
-      const newTags = [...tags, trimmedInputValue];
-      if (newTags.length <= maxTags) {
-        const event = new Event('resetInput');
-        window.dispatchEvent(event);
-        setTags(newTags);
-
-        checkTagLimits(newTags);
-      }
-    }
-  }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
-
   const handleTagsLogic = (e) => {
     const androidChrome = isAndroidChrome(e);
+    const key = androidChrome ? e?.nativeEvent?.data || e?.key : e.key;
 
-    const key = androidChrome ? e.nativeEvent.data : e.key;
+    switch (key) {
+      case 'Enter':
+        if (!isPhone) {
+          e.preventDefault();
+          const tagAdded = tryAddTagFromInput();
 
-    if (!androidChrome) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        onSubmit?.();
-        return;
-      }
+          if (tagAdded && tags.length + 1 >= maxTags) {
+            onSubmit?.();
+          }
+          return;
+        }
+      case 'Backspace':
+        if (isBackspaceKey(e, androidChrome)) {
+          tryRemoveLastTag();
+          return;
+        }
+        break;
+      case ',':
+      case ' ':
+        if (isCommaOrSpaceKey(key)) {
+          if (!inputValue.match(/^\s*$/)) {
+            e.preventDefault();
+            tryAddTagFromInput();
+            return;
+          }
+        }
+        break;
+      case 'Tab':
+        if (!androidChrome) {
+          e.preventDefault();
+          tryAddTagFromInput();
+          return;
+        }
+        break;
+      default:
+        break;
     }
 
-    let Backspace = !androidChrome
-      ? 'Backspace'
-      : getMappedKey(e.nativeEvent.inputType);
-
-    const shouldPreventDefault =
-      (tags.length >= maxTags && checkKey(Backspace, key, true)) ||
-      !regexAlphaNumericOnly.test(key) ||
-      (checkKey(' ', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ' ') ||
-      (checkKey(',', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ',') ||
-      ((checkKey(',', key) || checkKey(' ', key)) &&
-        !isTagValid(inputValue.trim()));
-
-    const shouldFocusNext =
-      !androidChrome && checkKey('Tab', key) && !!inputValue;
-
-    // TODO: Maybe not needed for android
-    const shouldRemoveTag = checkKey(Backspace, key) && !inputValue;
-
-    const shouldAddTagFromInput =
-      (checkKey(',', key) || checkKey(' ', key)) &&
-      !inputValue.match(/^\s*$/) &&
-      isTagValid(inputValue.trim());
-
-    // TODO: maybe prevent default on top
-    if (shouldPreventDefault) {
+    const currEl = e.target;
+    const shouldPreventDefaultConditions = [
+      tags.length >= maxTags && isBackspaceKey(e, androidChrome),
+      !regexAlphaNumericOnly.test(key),
+      checkKey(' ', key) && currEl.value[currEl.selectionStart - 1] === ' ',
+      checkKey(',', key) && currEl.value[currEl.selectionStart - 1] === ',',
+      isCommaOrSpaceKey(key) && !isTagValid(inputValue.trim()),
+    ];
+    if (shouldPreventDefaultConditions.some((condition) => condition)) {
       !maxTagsReached && e.preventDefault();
     }
-
-    if (shouldAddTagFromInput) {
-      console.log('called 1111111111111111111');
-      e.preventDefault();
-      addTagFromInput();
-      return;
-    }
-
-    if (shouldRemoveTag) {
-      const newTags = tags.slice(0, -1);
-      setTags(newTags);
-      checkTagLimits(newTags);
-      return;
-    }
-
-    if (!androidChrome && shouldFocusNext) {
-      console.log('called 2222222222222222');
-
-      e.preventDefault();
-      addTagFromInput();
-      return;
-    }
-
-    // TODO: What does this do? !inputValue.match(/^\s*$/)
   };
-
-  // TODO: Add wai aria elements to all the interactable UI
 
   const handlePaste = (e) => {
     e.preventDefault();
@@ -235,52 +241,48 @@ const TagsInput = ({
     checkTagLimits([...tags, ...newTags]);
   };
 
-  const handleTagRemove = (tag) => {
-    const newTags = tags.filter((t) => t !== tag);
-    setTags(newTags);
-    checkTagLimits(newTags);
-    inputRef.current.focus();
-  };
-
   return (
-    <div>
-      <h4>Input Value: {inputValue}</h4>
-      <div
-        className={classNames(
-          tagsWrapCls,
-          error ? 'border-red' : 'border-gray-300',
-          className
-        )}
-      >
-        <AnimatePresence>
-          {tags.map((tag, index) => (
-            <motion.button
-              type="button"
-              key={tag}
-              className={tagCls}
-              onClick={() => handleTagRemove(tag)}
-              onKeyDown={(e) => e.key === 'Backspace' && handleTagRemove(tag)}
-              {...tagAnimationProps}
-            >
-              {tag}
-            </motion.button>
-          ))}
-        </AnimatePresence>
+    <div
+      className={classNames(
+        tagsWrapCls,
+        error ? 'border-red' : 'border-gray-300',
+        className
+      )}
+    >
+      <AnimatePresence>
+        {tags.map((tag, index) => (
+          <motion.button
+            type="button"
+            key={tag}
+            className={tagCls}
+            onClick={() => handleTagRemove(tag)}
+            aria-label={`Remove tag ${tag}`}
+            onKeyDown={(e) => e.key === 'Backspace' && handleTagRemove(tag)}
+            {...tagAnimationProps}
+          >
+            {tag}
+          </motion.button>
+        ))}
+      </AnimatePresence>
 
-        <input
-          ref={inputRef}
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleTagsLogic}
-          onInput={handleTagsLogic}
-          onKeyUp={handleKeyUpBackspaceAndroid}
-          onPaste={handlePaste}
-          className={tagsInputCls}
-          placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
-          disabled={disabled}
-        />
-        {disabled && <DisabledDivOverlay />}
-      </div>
+      <label id="tagsLabel" className="sr-only">
+        Tags
+      </label>
+      <input
+        ref={inputRef}
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleTagsLogic}
+        onInput={handleTagsLogic}
+        onKeyUp={handlePhoneNuances}
+        onPaste={handlePaste}
+        className={tagsInputCls}
+        placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
+        disabled={disabled}
+        aria-disabled={disabled}
+        aria-labelledby="tagsLabel"
+      />
+      {disabled && <DisabledDivOverlay />}
     </div>
   );
 };
