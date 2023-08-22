@@ -131,6 +131,8 @@ const TagsInput = ({
 
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
+    window.alert('IS ANDROID PHONE');
+
     // frontLog('It is android phone');
     // frontLog({ e });
 
@@ -210,6 +212,7 @@ const TagsInput = ({
     if (androidChrome) return;
 
     console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
+    window.alert('NOT ANDROID PHONE');
 
     if (e.key === 'Enter') {
       e.preventDefault();
