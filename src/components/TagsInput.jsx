@@ -76,6 +76,14 @@ const TagsInput = ({
     // handleInputKeyDownAndroidChrome(e)
   };
 
+  const handleKeyUpBackspaceAndroid = (e) => {
+    console.log('onKeyUp: ', e);
+    const onKeyUp = document.createElement('pre');
+    onKeyUp.innerHTML = e?.key || 'NO KEY';
+    onKeyUp.style.backgroundColor = 'orange';
+    document.body.appendChild(onKeyUp);
+  };
+
   // Fix for Android Chrome not clearing input value after tag is added
   useEffect(() => {
     const resetInputHandler = () => {
@@ -328,13 +336,7 @@ const TagsInput = ({
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
           onInput={handleInputKeyDownAndroidChrome}
-          onKeyUp={(e) => {
-            console.log('onKeyUp: ', e);
-            const onKeyUp = document.createElement('pre');
-            onKeyUp.innerHTML = e.nativeEvent;
-            onKeyUp.style.backgroundColor = 'orange';
-            document.body.appendChild(onKeyUp);
-          }}
+          onKeyUp={handleKeyUpBackspaceAndroid}
           onPaste={handlePaste}
           className={tagsInputCls}
           placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
