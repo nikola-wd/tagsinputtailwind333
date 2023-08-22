@@ -180,6 +180,7 @@ const TagsInput = ({
   }, [setInputValue]);
 
   const handleTagsLogic = (e) => {
+    console.log(e);
     const androidChrome = isAndroidChrome(e);
     const key = androidChrome ? e?.nativeEvent?.data || e?.key : e.key;
 
