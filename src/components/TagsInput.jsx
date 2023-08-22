@@ -23,6 +23,14 @@ function checkKey(key, eventKey, negate = false) {
   return negate ? eventKey !== key : eventKey === key;
 }
 
+const getMappedKey = (inputType) => {
+  return (
+    {
+      deleteContentBackward: 'Backspace',
+    }[inputType] || null
+  );
+};
+
 const DisabledDivOverlay = () => (
   <div className="absolute inset-0 bg-gray-800 opacity-40 cursor-not-allowed" />
 );
@@ -76,6 +84,13 @@ const TagsInput = ({
     if (tags.length < maxTags && sanitizedValue.length <= tagMaxChars) {
       setInputValue(sanitizedValue);
     }
+  };
+
+  const tagAnimationProps = {
+    initial: { scale: 0.8 },
+    animate: { scale: 1 },
+    exit: { scale: 0.8 },
+    transition: { duration: 0.1 },
   };
 
   // hacky fix for chrome android not clearing input value after tag is added
@@ -241,14 +256,11 @@ const TagsInput = ({
           {tags.map((tag, index) => (
             <motion.button
               type="button"
-              key={`${tag}-${index}`}
+              key={tag}
               className={tagCls}
               onClick={() => handleTagRemove(tag)}
               onKeyDown={(e) => e.key === 'Backspace' && handleTagRemove(tag)}
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              transition={{ duration: 0.1 }}
+              {...tagAnimationProps}
             >
               {tag}
             </motion.button>
