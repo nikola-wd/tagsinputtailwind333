@@ -131,7 +131,6 @@ const TagsInput = ({
 
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
-    window.alert('IS ANDROID PHONE');
 
     console.warn('eKey: ', window.navigator.userAgent);
 
@@ -214,7 +213,6 @@ const TagsInput = ({
     if (androidChrome) return;
 
     console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
-    window.alert('NOT ANDROID PHONE');
 
     console.warn('eKey: ', window.navigator.userAgent);
     console.warn('eKey: ', e.key);
