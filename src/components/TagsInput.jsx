@@ -102,6 +102,10 @@ const TagsInput = ({
       sanitizedValue = '';
     }
 
+    if (isAndroidChrome()) {
+      sanitizedValue = sanitizedValue.replace(/,|\s+/g, '');
+    }
+
     console.log('sanitized value: ', sanitizedValue);
 
     // Replace or remove any undesired characters
