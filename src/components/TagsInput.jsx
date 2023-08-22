@@ -112,7 +112,11 @@ const TagsInput = ({
   }, [setInputValue]);
 
   const addTagFromInput = () => {
-    const trimmedInputValue = inputValue.trim();
+    let trimmedInputValue = inputValue.trim();
+    if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
+      trimmedInputValue = trimmedInputValue.slice(0, -1);
+      setInputValue(trimmedInputValue);
+    }
 
     console.log(
       'FROM INSIDE addTagFromInput trimmedInputValue: ',
