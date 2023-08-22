@@ -135,51 +135,118 @@ const TagsInput = ({
     }
   }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
-  const handleTagsLogic = (e) => {
+  const handleInputKeyDownAndroidChrome = (e) => {
     const androidChrome = isAndroidChrome(e);
 
-    const key = androidChrome ? e.nativeEvent.data : e.key;
+    if (!androidChrome) return;
 
-    if (!androidChrome) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        onSubmit?.();
-        return;
-      }
-    }
+    const androidChromeData = e.nativeEvent.data;
 
-    let Backspace = !androidChrome
-      ? 'Backspace'
-      : getMappedKey(e.nativeEvent.inputType);
+    const getMappedKey = (inputType) => {
+      return (
+        {
+          deleteContentBackward: 'Backspace',
+        }[inputType] || null
+      );
+    };
 
     const shouldPreventDefault =
-      (tags.length >= maxTags && checkKey(Backspace, key, true)) ||
-      !regexAlphaNumericOnly.test(key) ||
-      (checkKey(' ', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ' ') ||
-      (checkKey(',', key) &&
-        inputRef.current.value[inputRef.current.selectionStart - 1] === ',') ||
-      ((checkKey(',', key) || checkKey(' ', key)) &&
+      (tags.length >= maxTags &&
+        checkKey(
+          getMappedKey(e.nativeEvent.inputType),
+          androidChromeData,
+          true
+        )) ||
+      !regexAlphaNumericOnly.test(androidChromeData) ||
+      (checkKey(' ', androidChromeData) &&
+        e.target.value[e.target.selectionStart - 1] === ' ') ||
+      (checkKey(',', androidChromeData) &&
+        e.target.value[e.target.selectionStart - 1] === ',') ||
+      ((checkKey(',', androidChromeData) || checkKey(' ', androidChromeData)) &&
         !isTagValid(inputValue.trim()));
 
     const shouldFocusNext =
-      !androidChrome && checkKey('Tab', key) && !!inputValue;
+      (checkKey(' ', androidChromeData) || checkKey(',', androidChromeData)) &&
+      !!inputValue;
 
-    // TODO: Maybe not needed for android
-    const shouldRemoveTag = checkKey(Backspace, key) && !inputValue;
+    const shouldRemoveTag =
+      checkKey(getMappedKey(e.nativeEvent.inputType)) && !inputValue;
 
     const shouldAddTagFromInput =
-      (checkKey(',', key) || checkKey(' ', key)) &&
+      (checkKey(',', androidChromeData) || checkKey(' ', androidChromeData)) &&
       !inputValue.match(/^\s*$/) &&
       isTagValid(inputValue.trim());
 
-    // TODO: maybe prevent default on top
     if (shouldPreventDefault) {
       !maxTagsReached && e.preventDefault();
     }
 
     if (shouldAddTagFromInput) {
-      console.log('called 1111111111111111111');
+      e.preventDefault();
+
+      if (tags.length < maxTags) {
+        const endsWithCommaOrSpace =
+          inputValue.endsWith(',') || inputValue.endsWith(' ');
+        const inputValueWithoutLastChar = inputValue.slice(0, -1);
+
+        if (endsWithCommaOrSpace && tags.includes(inputValueWithoutLastChar)) {
+          setInputValue('');
+        } else {
+          addTagFromInput();
+        }
+      }
+
+      return;
+    }
+
+    if (shouldRemoveTag) {
+      const newTags = tags.slice(0, -1);
+      setTags(newTags);
+      checkTagLimits(newTags);
+      return;
+    }
+
+    if (shouldFocusNext) {
+      e.preventDefault();
+      addTagFromInput();
+      return;
+    }
+  };
+
+  const handleInputKeyDown = (e) => {
+    const androidChrome = isAndroidChrome(e);
+    if (androidChrome) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSubmit?.();
+      return;
+    }
+
+    const shouldPreventDefault =
+      (tags.length >= maxTags && checkKey('Backspace', e.key, true)) ||
+      !regexAlphaNumericOnly.test(e.key) ||
+      (checkKey(' ', e.key) &&
+        e.target.value[e.target.selectionStart - 1] === ' ') ||
+      (checkKey(',', e.key) &&
+        e.target.value[e.target.selectionStart - 1] === ',') ||
+      ((checkKey(',', e.key) || checkKey(' ', e.key)) &&
+        !isTagValid(inputValue.trim()));
+
+    const shouldFocusNext = checkKey('Tab', e.key) && !!inputValue;
+
+    const shouldRemoveTag = checkKey('Backspace', e.key) && !inputValue;
+
+    const shouldAddTagFromInput =
+      (checkKey(',', e.key) || checkKey(' ', e.key)) &&
+      !inputValue.match(/^\s*$/) &&
+      isTagValid(inputValue.trim());
+
+    if (shouldPreventDefault) {
+      !maxTagsReached && e.preventDefault();
+    }
+
+    if (shouldAddTagFromInput) {
       e.preventDefault();
       addTagFromInput();
       return;
@@ -192,15 +259,11 @@ const TagsInput = ({
       return;
     }
 
-    if (!androidChrome && shouldFocusNext) {
-      console.log('called 2222222222222222');
-
+    if (shouldFocusNext) {
       e.preventDefault();
       addTagFromInput();
       return;
     }
-
-    // TODO: What does this do? !inputValue.match(/^\s*$/)
   };
 
   // TODO: Add wai aria elements to all the interactable UI
@@ -259,8 +322,8 @@ const TagsInput = ({
           ref={inputRef}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={handleTagsLogic}
-          onInput={handleTagsLogic}
+          onKeyDown={handleInputKeyDown}
+          onInput={handleInputKeyDownAndroidChrome}
           onKeyUp={handleKeyUpBackspaceAndroid}
           onPaste={handlePaste}
           className={tagsInputCls}
