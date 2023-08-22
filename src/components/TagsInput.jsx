@@ -47,7 +47,12 @@ const TagsInput = ({
   const maxTagsReached = tags.length >= maxTags;
 
   const isTagValid = (tag) => {
-    return tag.length >= tagMinChars && tag.length <= tagMaxChars;
+    return (
+      tag.length >= tagMinChars &&
+      tag.length <= tagMaxChars &&
+      tags.length < maxTags &&
+      !tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+    );
   };
 
   const checkTagLimits = (newTags) => {
