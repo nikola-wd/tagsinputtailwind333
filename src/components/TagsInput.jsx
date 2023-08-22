@@ -2,12 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const frontLog = (content) => {
-  const fl = document.getElementById('log');
-  fl.innerHTML =
-    fl.innerHTML + '\n ________ \n' + JSON.stringify(content, null, 2);
-};
-
 const tagsWrapCls =
   'bg-white border-2 rounded p-1 py-[8px] flex flex-wrap gap-[4px] relative focus-within:ring-blue focus-within:ring-2 focus-within:ring-offset-2  min-h-9';
 const tagCls =
@@ -20,8 +14,6 @@ const regexAlphaNumericOnly = /^[a-zA-Z0-9 ,]+$/;
 const isAndroidChrome = (e) => {
   const lowerCaseUserAgent = window.navigator.userAgent.toLowerCase();
   return (
-    e?.nativeEvent?.data !== 'undefined' &&
-    e?._reactName === 'onInput' &&
     lowerCaseUserAgent.includes('android') &&
     lowerCaseUserAgent.includes('chrome')
   );
