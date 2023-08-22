@@ -138,6 +138,8 @@ const TagsInput = ({
 
   const tryAddTagFromInput = useCallback(() => {
     let trimmedInputValue = inputValue.trim();
+
+    console.log('Inside try add', trimmedInputValue);
     // TODO: Test if this is needed, because bug on android chrome is not fixed by this
     if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
       trimmedInputValue = trimmedInputValue.slice(0, -1);
@@ -166,9 +168,13 @@ const TagsInput = ({
       ? e?.nativeEvent?.data || e?.nativeEvent?.key
       : e.key;
 
+    console.log('====================KEY: ', key);
+
     switch (key) {
       case 'Enter':
         e.preventDefault();
+        console.log('Enter pressed');
+        // TODO: Fix enter not adding tags
         tryAddTagFromInput;
         if (!androidChrome) {
           onSubmit?.();
@@ -186,16 +192,14 @@ const TagsInput = ({
       case ' ':
         if (isCommaOrSpaceKey(key)) {
           if (!inputValue.match(/^\s*$/)) {
-            if (isTagValid(inputValue.trim())) {
-              e.preventDefault();
-              tryAddTagFromInput();
-              return;
-            }
+            e.preventDefault();
+            tryAddTagFromInput();
+            return;
           }
         }
         break;
       case 'Tab':
-        if (!androidChrome && inputValue) {
+        if (!androidChrome) {
           e.preventDefault();
           tryAddTagFromInput();
           return;
