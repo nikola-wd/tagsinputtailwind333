@@ -206,6 +206,8 @@ const TagsInput = ({
         break;
     }
 
+    // TODO: On mobile it might not be clear that space, comma etc add tags, either tooltip or on enter, or additional button
+
     // Consolidate common checks outside the switch
     const shouldPreventDefaultConditions = [
       tags.length >= maxTags && isBackspaceKey(e, androidChrome),
