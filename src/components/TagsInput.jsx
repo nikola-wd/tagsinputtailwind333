@@ -4,6 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const regexAlphaNumericOnly = /^[a-zA-Z0-9 ,]+$/;
 
+const isPhone =
+  /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+
 const isAndroidChrome = (e) => {
   const lowerCaseUserAgent = window.navigator.userAgent.toLowerCase();
   return (
@@ -144,15 +149,15 @@ const TagsInput = ({
   }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
   // hacky fix for chrome android not clearing input value after tag is added
-  const handleAndroidChrome = useCallback(
+  const handlePhoneNuances = useCallback(
     (e) => {
       console.log('On Key Up: ', e);
 
-      if (!isAndroidChrome()) return;
+      if (!isPhone) return;
 
       switch (e.key) {
         case 'Backspace':
-          tryRemoveLastTag();
+          isAndroidChrome() && tryRemoveLastTag();
           break;
         case 'Enter':
           tryAddTagFromInput();
@@ -283,7 +288,7 @@ const TagsInput = ({
         onChange={handleInputChange}
         onKeyDown={handleTagsLogic}
         onInput={handleTagsLogic}
-        onKeyUp={handleAndroidChrome}
+        onKeyUp={handlePhoneNuances}
         onPaste={handlePaste}
         className={tagsInputCls}
         placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
