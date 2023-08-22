@@ -124,6 +124,11 @@ const TagsInput = ({
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
 
+    const testH = document.createElement('h2');
+    testH.innerHTML = 'IT IS ANDROID';
+    testH.style.backgroundColor = 'green';
+    document.body.appendChild(testH);
+
     console.warn('eKey: ', window.navigator.userAgent);
 
     // frontLog('It is android phone');
@@ -203,6 +208,12 @@ const TagsInput = ({
   const handleInputKeyDown = (e) => {
     const androidChrome = isAndroidChrome(e);
     if (androidChrome) return;
+
+    const testH = document.createElement('h2');
+    testH.innerHTML = 'NOT ANDROID';
+    testH.style.backgroundColor = 'red';
+
+    document.body.appendChild(testH);
 
     console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
 
