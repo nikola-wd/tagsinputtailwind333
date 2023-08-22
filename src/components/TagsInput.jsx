@@ -98,6 +98,8 @@ const TagsInput = ({
   const handleInputChange = (e) => {
     let sanitizedValue = e.target.value;
 
+    console.log('sanitized value: ', sanitizedValue);
+
     // Replace or remove any undesired characters
     // This regex will remove anything that's not alphanumeric, space, or comma.
     sanitizedValue = sanitizedValue.replace(/[^a-zA-Z0-9 ,]/g, '');
