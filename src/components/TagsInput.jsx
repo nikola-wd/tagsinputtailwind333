@@ -328,7 +328,13 @@ const TagsInput = ({
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
           onInput={handleInputKeyDownAndroidChrome}
-          onKeyUp={(e) => console.log('onKeyUp: ', e)}
+          onKeyUp={(e) => {
+            console.log('onKeyUp: ', e);
+            const onKeyUp = document.createElement('pre');
+            onKeyUp.innerHTML = e.nativeEvent;
+            onKeyUp.style.backgroundColor = 'orange';
+            document.body.appendChild(onKeyUp);
+          }}
           onPaste={handlePaste}
           className={tagsInputCls}
           placeholder={`${maxTagsReached ? 'Limit reached' : placeholder}`}
