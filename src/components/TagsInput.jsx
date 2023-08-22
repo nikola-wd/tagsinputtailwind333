@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const frontLog = (content) => {
   const fl = document.getElementById('log');
-  fl.innerHTML = JSON.stringify(content);
+  fl.innerHTML = JSON.stringify(content, null, 2);
 };
 
 const tagsWrapCls =
@@ -130,6 +130,8 @@ const TagsInput = ({
 
     if (!androidChrome) return;
     console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
+    frontLog('It is android phone');
+    frontLog({ e });
 
     if (androidChrome) {
       const testAndroidChrome = document.createElement('h2');
