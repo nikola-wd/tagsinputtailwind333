@@ -20,8 +20,6 @@ const isAndroidChrome = (e) => {
 };
 
 function checkKey(key, eventKey, negate = false) {
-  console.log('CheckKey: ', key, eventKey, negate);
-  // frontLog({ checkkey: 'checkKey', key, eventKey, negate });
   return negate ? eventKey !== key : eventKey === key;
 }
 
@@ -69,20 +67,13 @@ const TagsInput = ({
     sanitizedValue = sanitizedValue.replace(/[^a-zA-Z0-9 ,]/g, '');
 
     if (tags.length < maxTags && sanitizedValue.length <= tagMaxChars) {
-      console.log('handleInputChange', e);
       setInputValue(sanitizedValue);
     }
-
-    // handleInputKeyDownAndroidChrome(e)
   };
 
   // hacky fix for chrome android not clearing input value after tag is added
   const handleKeyUpBackspaceAndroid = useCallback(
     (e) => {
-      console.log('onKeyUp: ', e);
-      console.log('onKeyUp Target: ', e.target);
-      console.log('onKeyUp current ref: ', inputRef.current);
-
       if (
         isAndroidChrome(e) &&
         e?.key === 'Backspace' &&
@@ -90,15 +81,10 @@ const TagsInput = ({
         !inputRef.current.value &&
         tags.length
       ) {
-        console.warn('___SHOLD CLEAR LAST KEY NOW___');
         const newTags = tags.slice(0, -1);
         setTags(newTags);
         checkTagLimits(newTags);
       }
-      const onKeyUp = document.createElement('pre');
-      onKeyUp.innerHTML = e?.key || 'NO KEY';
-      onKeyUp.style.backgroundColor = 'orange';
-      document.body.appendChild(onKeyUp);
     },
     [tags.length, inputRef.current, setTags, checkTagLimits]
   );
@@ -109,14 +95,10 @@ const TagsInput = ({
       setTimeout(() => {
         setInputValue('');
       }, 0);
-      console.log(
-        'Input value has been reset - Listened for the custom event!!!!!'
-      );
     };
 
     window.addEventListener('resetInput', resetInputHandler);
 
-    // Cleanup: remove the event listener when the component is unmounted
     return () => {
       window.removeEventListener('resetInput', resetInputHandler);
     };
@@ -132,12 +114,8 @@ const TagsInput = ({
     ) {
       const newTags = [...tags, trimmedInputValue];
       if (newTags.length <= maxTags) {
-        console.log('BEFORE CLEARING INPUT VALUE');
-        // setInputValue('')
-        // Emit the custom event instead of directly setting state
         const event = new Event('resetInput');
         window.dispatchEvent(event);
-        console.log('AFTER CLEARING INPUT VALUE');
         setTags(newTags);
 
         checkTagLimits(newTags);
@@ -149,17 +127,6 @@ const TagsInput = ({
     const androidChrome = isAndroidChrome(e);
 
     if (!androidChrome) return;
-    console.log('IT IS ANDROID CHROME!!!!!!!!!!!!!!!!!!!!!!!', e);
-
-    const testH = document.createElement('h2');
-    testH.innerHTML = 'IT IS ANDROID';
-    testH.style.backgroundColor = 'green';
-    document.body.appendChild(testH);
-
-    console.warn('eKey: ', window.navigator.userAgent);
-
-    // frontLog('It is android phone');
-    // frontLog({ e });
 
     const androidChromeData = e.nativeEvent.data;
 
@@ -170,16 +137,6 @@ const TagsInput = ({
         }[inputType] || null
       );
     };
-
-    // TODO: Test backspace (delete chars)
-    // window.alert('androidChromeData: ', androidChromeData)
-    // TODO: Check if Enter can be caught by event listeners
-    // if (e.key === 'Enter') {
-    //   e.preventDefault()
-    //   console.log('On submit from TagsInput')
-    //   onSubmit?.()
-    //   return
-    // }
 
     const shouldPreventDefault =
       (tags.length >= maxTags &&
@@ -236,20 +193,8 @@ const TagsInput = ({
     const androidChrome = isAndroidChrome(e);
     if (androidChrome) return;
 
-    const testH = document.createElement('h2');
-    testH.innerHTML = 'NOT ANDROID';
-    testH.style.backgroundColor = 'red';
-
-    document.body.appendChild(testH);
-
-    console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
-
-    console.warn('eKey: ', window.navigator.userAgent);
-    console.warn('eKey: ', e.key);
-
     if (e.key === 'Enter') {
       e.preventDefault();
-      console.log('On submit from TagsInput');
       onSubmit?.();
       return;
     }
