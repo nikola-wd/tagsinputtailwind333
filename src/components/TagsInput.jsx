@@ -130,8 +130,10 @@ const TagsInput = ({
         window.dispatchEvent(event);
         setTags(newTags);
         checkTagLimits(newTags);
+        return true;
       }
     }
+    return false;
   }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
   // hacky fix for chrome android not clearing input value after tag is added
@@ -174,11 +176,15 @@ const TagsInput = ({
 
     switch (key) {
       case 'Enter':
-        e.preventDefault();
-        if (!androidChrome) {
-          onSubmit?.();
+        if (!isPhone) {
+          e.preventDefault();
+          const tagAdded = tryAddTagFromInput();
+
+          if (tagAdded && tags.length + 1 >= maxTags) {
+            onSubmit?.();
+          }
+          return;
         }
-        return;
       case 'Backspace':
         if (isBackspaceKey(e, androidChrome)) {
           tryRemoveLastTag();
