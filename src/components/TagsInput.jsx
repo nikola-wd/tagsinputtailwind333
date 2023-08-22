@@ -111,7 +111,7 @@ const TagsInput = ({
     };
   }, [setInputValue]);
 
-  const addTagFromInput = () => {
+  const addTagFromInput = useCallback(() => {
     let trimmedInputValue = inputValue.trim();
     if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
       trimmedInputValue = trimmedInputValue.slice(0, -1);
@@ -133,7 +133,7 @@ const TagsInput = ({
         checkTagLimits(newTags);
       }
     }
-  };
+  }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
   const handleInputKeyDownAndroidChrome = (e) => {
     const androidChrome = isAndroidChrome(e);
