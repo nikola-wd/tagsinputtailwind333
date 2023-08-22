@@ -84,6 +84,13 @@ const TagsInput = ({
     }
   };
 
+  const handleTagRemove = (tag) => {
+    const newTags = tags.filter((t) => t !== tag);
+    setTags(newTags);
+    checkTagLimits(newTags);
+    inputRef.current.focus();
+  };
+
   const handleInputChange = (e) => {
     let sanitizedValue = e.target.value;
 
@@ -102,6 +109,39 @@ const TagsInput = ({
     exit: { scale: 0.8 },
     transition: { duration: 0.1 },
   };
+
+  const tryRemoveLastTag = () => {
+    if (!!inputValue || !tags.length) return;
+    const newTags = tags.slice(0, -1);
+    setTags(newTags);
+    checkTagLimits(newTags);
+  };
+
+  const tryAddTagFromInput = useCallback(() => {
+    let trimmedInputValue = inputValue.trim();
+
+    console.log('Inside try add', trimmedInputValue);
+    // TODO: Test if this is needed, because bug on android chrome is not fixed by this
+    if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
+      trimmedInputValue = trimmedInputValue.slice(0, -1);
+      setInputValue(trimmedInputValue);
+    }
+
+    console.log(
+      'FROM INSIDE tryAddTagFromInput trimmedInputValue: ',
+      trimmedInputValue
+    );
+
+    if (trimmedInputValue && isTagValid(trimmedInputValue)) {
+      const newTags = [...tags, trimmedInputValue];
+      if (newTags.length <= maxTags) {
+        const event = new Event('resetInput');
+        window.dispatchEvent(event);
+        setTags(newTags);
+        checkTagLimits(newTags);
+      }
+    }
+  }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
   // hacky fix for chrome android not clearing input value after tag is added
   const handleAndroidChrome = useCallback(
@@ -138,32 +178,6 @@ const TagsInput = ({
       window.removeEventListener('resetInput', resetInputHandler);
     };
   }, [setInputValue]);
-
-  const tryAddTagFromInput = useCallback(() => {
-    let trimmedInputValue = inputValue.trim();
-
-    console.log('Inside try add', trimmedInputValue);
-    // TODO: Test if this is needed, because bug on android chrome is not fixed by this
-    if (trimmedInputValue.endsWith(',') || trimmedInputValue.endsWith(' ')) {
-      trimmedInputValue = trimmedInputValue.slice(0, -1);
-      setInputValue(trimmedInputValue);
-    }
-
-    console.log(
-      'FROM INSIDE tryAddTagFromInput trimmedInputValue: ',
-      trimmedInputValue
-    );
-
-    if (trimmedInputValue && isTagValid(trimmedInputValue)) {
-      const newTags = [...tags, trimmedInputValue];
-      if (newTags.length <= maxTags) {
-        const event = new Event('resetInput');
-        window.dispatchEvent(event);
-        setTags(newTags);
-        checkTagLimits(newTags);
-      }
-    }
-  }, [inputValue, setInputValue, tags, setTags, checkTagLimits, maxTags]);
 
   const handleTagsLogic = (e) => {
     const androidChrome = isAndroidChrome(e);
@@ -234,20 +248,6 @@ const TagsInput = ({
     setTags([...tags, ...newTags]);
 
     checkTagLimits([...tags, ...newTags]);
-  };
-
-  const handleTagRemove = (tag) => {
-    const newTags = tags.filter((t) => t !== tag);
-    setTags(newTags);
-    checkTagLimits(newTags);
-    inputRef.current.focus();
-  };
-
-  const tryRemoveLastTag = () => {
-    if (!!inputValue || !tags.length) return;
-    const newTags = tags.slice(0, -1);
-    setTags(newTags);
-    checkTagLimits(newTags);
   };
 
   return (
