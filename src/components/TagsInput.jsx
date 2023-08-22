@@ -214,6 +214,8 @@ const TagsInput = ({
     console.log('NOT ANDROID PHONE++++++++++++++++++++++++++');
     window.alert('NOT ANDROID PHONE');
 
+    console.warn('eKey: ', e.key);
+
     if (e.key === 'Enter') {
       e.preventDefault();
       console.log('On submit from TagsInput');
